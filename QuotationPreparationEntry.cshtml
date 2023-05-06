@@ -1,0 +1,304 @@
+﻿@model BusinessLayer.Entity.VM_Quotation_Entry
+
+@{
+    ViewBag.Title = "Quotation_Entry";
+    Layout = "~/Views/Shared/_MainDashboard.cshtml";
+
+}
+
+
+<style>
+    .table thead th {
+        font-weight: 600;
+        font-size: 15px;
+        border-bottom: 0;
+        padding-left: 1rem;
+    }
+
+    .table td {
+        font-weight: 600;
+        font-size: 11px;
+        border-bottom: 0;
+        padding-left: 1rem;
+    }
+
+    .table td, .table th {
+        padding: 0.25rem;
+        vertical-align: top;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .table td, .table th {
+        padding: 0.25rem;
+        vertical-align: top;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .table .form-control {
+        height: 45px;
+    }
+
+    .box {
+        box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
+        /*box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;*/
+    }
+
+    .thHeader {
+        -webkit-box-shadow: 2px -3px 5px 0px rgba(0,0,0,0.75);
+        -moz-box-shadow: 2px -3px 5px 0px rgba(0,0,0,0.75);
+        box-shadow: 2px -3px 5px 0px rgba(0,0,0,0.75);
+        width: 30%;
+        border-radius: 10px;
+        background-color: #caf8fa;
+    }
+</style>
+
+<link href='https://fonts.googleapis.com/css?family=Orbitron' rel='stylesheet' type='text/css'>
+
+@using (Html.BeginForm("QuotationPreparationEntry", "Quotation", FormMethod.Post, new { @id = "frmQuotationPreparationEntry", enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    Html.RenderPartial("_Alerts");
+    <div class="pd-20 card-box mb-30">
+
+        <div class="form-group row">
+            <label class="col-sm-12 col-md-2 col-form-label">Quatation Date</label>
+            <div class="col-sm-12 col-md-4">
+                @Html.TextBoxFor(x => x.Quatation_DT, new { @class = "form-control datetimepicker", @id = "txtQuatation_DT", @autocomplete = "off", @data_placeholder = "Select Quatation Date", @readOnly = true })
+                <span id="spnErr_txtQuatation_DT" class="field-validation-error"></span>
+            </div>
+            <label class="col-sm-12 col-md-2 col-form-label">Quatation Number</label>
+            <div class="col-sm-12 col-md-4">
+                <span id="spnErr_txtQuatation_NO" class="field-validation-error"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-12 col-md-2 col-form-label">Party Name</label>
+            <div class="col-sm-12 col-md-10">
+                <span id="spnErr_Party_Name" class="field-validation-error"></span>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div style="color:red;font-size:18px;font-weight:bold;">
+                Result : Product Details ( <span id="spnGradeRemarks"></span> )
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered" style="font-size: 9px; padding: 0px; margin: 0px; " id="tblRemarksList">
+                    <thead>
+                        <tr>
+                            <th style="width:30px;text-align:center;vertical-align:top;">Sl. No.</th>
+                            <th style="width:300px;text-align:center;vertical-align:top;">Product Name</th>
+                            <th style="width:100px;text-align:center;vertical-align:top;">Description</th>
+                            <th style="width:100px;text-align:center;vertical-align:top;">Unit INR/KG</th>
+                            <th style="width:250px;text-align:center;vertical-align:top;">Unit Price M.T.</th>
+                            <th style="width:250px;text-align:center;vertical-align:top;">Packging</th>
+                            <th style="width:20px; text-align: center; vertical-align: top;"></th>
+                        </tr>
+
+                    </thead>
+                    <tbody id="tbodyRemarksList">
+                        @for (int i = 0; i < Model.Product_Dtl.Count(); i++)
+                        {
+
+                            <tr id="tr_@i">
+                                <td data-title="Sl. No." style="text-align: center; padding-top: 17px;">
+                                    @Html.HiddenFor(x => x.Product_Dtl[i].SrNo)
+                                    <span id="spnSLNo_@i"> @(i + 1) </span>
+                                </td>
+                                <td data-title="Product Name">
+                                    @Html.HiddenFor(x => x.Product_Dtl[i].productName)
+                                    <span id="spnErr_Product_Name" class="field-validation-error"></span>
+                                </td>
+                                <td data-title="Description" width="300px">
+                                    @Html.TextAreaFor(x => x.Product_Dtl[i].productDesc, new { @class = "form-control", @autocomplete = "off", @maxLength = "250", @style = "height:45px;" })
+                                </td>
+
+                                <td data-title="Unit Price INR/KG">
+                                    @Html.TextBoxFor(x => x.Product_Dtl[i].Unit_price_KG, new { @class = "form-control", @autocomplete = "off", @maxLength = "250", @style = "height:45px;" })
+                                </td>
+                                <td data-title="Unit Price M.T.">
+                                    @Html.HiddenFor(x => x.Product_Dtl[i].Unit_price_MT)
+                                    <span id="spnErr_Unit_Price_INR/KG" class="field-validation-error"></span>
+                                </td>
+                                <td data-title="Packging">
+                                    @Html.DropDownListFor(x => x.Product_Dtl[i].PACKAGE_ID,Model.Packaging_List, "Select Packging", new { @class = "form-control", @data_placeholder = "Select Unit", @style = "width:100%;" })
+                                </td>
+
+                                <td data-title="Action" style="font-size:20px;padding-top:17px;">
+                                    @if (i == 0)
+                                    {
+                                        <i class="fa fa-plus" aria-hidden="true" style="cursor: pointer; display: block;" id="iAddRemarks_@i"></i>
+                                        <i class="fa fa-trash-o" aria-hidden="true" style="cursor:pointer;display:none;" id="iDelRemarks_@i"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fa fa-plus" aria-hidden="true" style="cursor: pointer; display: none;" id="iAddRemarks_@i"></i>
+                                        <i class="fa fa-close" aria-hidden="true" style="cursor:pointer;display:block;color:red;" id="iDelRemarks_@i"></i>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+        @*<div class="form-group row">
+            <div class="table-responsive">
+                <table class="table table-bordered" style="font-size: 9px; padding: 0px; margin: 0px; " id="tblTermsList">
+                    <thead>
+                        <tr>
+                            <th style="width:30px;text-align:center;vertical-align:top;">SR. No.</th>
+                            <th style="width:300px;text-align:center;vertical-align:top;">Terms & Condition</th>
+                            <th style="width:100px;text-align:center;vertical-align:top;"></th>
+                        </tr>
+                        </thead>
+                    <tbody id="tblTermsList">
+                        @for (int i = 0; i < Model.Term_Dtl.Count(); i++)
+                        {
+
+                            <tr id="tr_@i">
+                                <td data-title="SR. No." style="text-align: center; padding-top: 17px;">
+                                    <span id="spnSRNo_@i"> @(i + 1) </span>
+                                </td>
+                           
+                                <td data-title="Terms & Condition">
+                                    @Html.TextAreaFor(x => x.Term_Dtl[i].TERM_CONDITION, new { @class = "form-control", @autocomplete = "off", @maxLength = "250", @style = "height:45px;" })
+                                </td>
+                                <td style="float:left;">
+                                    @Html.CheckBoxFor(x => x.Term_Dtl[i].isSelected, new { @style = "width:40px;", @class = "vmSTRATEGY input.bigCheckbox" })
+                                </td>
+                                <td data-title="Action" style="font-size:20px;padding-top:17px;">
+                                    @if (i == 0)
+                                    {
+                                        <i class="fa fa-plus" aria-hidden="true" style="cursor: pointer; display: block;" id="iAddRemarks_@i"></i>
+                                        <i class="fa fa-trash-o" aria-hidden="true" style="cursor:pointer;display:none;" id="iDelRemarks_@i"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fa fa-plus" aria-hidden="true" style="cursor: pointer; display: none;" id="iAddRemarks_@i"></i>
+                                        <i class="fa fa-close" aria-hidden="true" style="cursor:pointer;display:block;color:red;" id="iDelRemarks_@i"></i>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+</table>
+            </div>
+        </div>*@
+
+
+        <div class="form-group row">
+            <div class="col-md-12" style="padding-top:5px; padding-bottom:15px; padding-right:13px;text-align:center;">
+                <input type="submit" class="btn btn-success" value="Save" name="Save" style="width:auto;" id="btnSubmit" />
+                <input type="reset" class="btn btn-danger" value="Reset" style="width:auto;" id="btnReset" />
+
+            </div>
+        </div>
+
+    </div>
+
+}
+
+<script src="~/assets/js/jquery-2.1.4.min.js"></script>
+<script src="~/Scripts/Custom/customValidation.js"></script>
+<script src="~/FormJS/MixDesignEntry.js?4"></script>
+
+<style>
+    input[type='checkbox'] {
+        -webkit-appearance: block;
+        width: 30px;
+        height: 30px;
+        background: white;
+        border-radius: 5px;
+        border: 2px solid #555;
+    }
+
+        input[type='checkbox']:checked {
+            background: #abd;
+        }
+
+
+    input[type=radio] {
+        border: 0px;
+        width: 100%;
+        height: 2em;
+    }
+
+    .lblPading {
+        padding-left: 20px;
+        padding-right: 20px;
+        font-weight: bold;
+    }
+</style>
+
+<style>
+    #tblSummaryList td {
+        font-size: 20px;
+    }
+
+    #tblSummaryList thead th {
+        font-size: 20px;
+    }
+
+    .table thead th {
+        font-weight: 600;
+        font-size: 14px;
+        border-bottom: 0;
+        padding-left: 1rem;
+        background-color: #000000;
+        color: white;
+    }
+
+    .table td {
+        font-weight: 600;
+        font-size: 14px;
+        border-bottom: 0;
+        padding-left: 1rem;
+    }
+
+    .table td, .table th {
+        padding: 0.25rem;
+        vertical-align: top;
+        border: 1px solid #dee2e6;
+    }
+
+    .FinalTotal {
+        font-size: 20px;
+        background-color: #efaa0a;
+    }
+
+    .tdClass {
+        font-size: 20px;
+        background-color: #f0f1f3;
+    }
+
+    .tdevenClass {
+        font-size: 20px;
+        background-color: #ffffe9;
+    }
+</style>
+
+<script>
+    $(document).ready(function () {
+
+        $('.vmSTRATEGY').click(function () {
+            $('.vmSTRATEGY').not(this).prop('checked', false);
+        });
+    });
+
+
+      var selectedValue = sessionStorage.getItem('selectedValue');
+      $('#spnErr_Product_Name').text(selectedValue);
+  
+   
+
+    $(document).ready(function () {
+        var selectedValue = sessionStorage.getItem('selectedValue');
+        $('#spnErr_Party_Name').text(selectedValue);
+    });
+</script>
+
+ 

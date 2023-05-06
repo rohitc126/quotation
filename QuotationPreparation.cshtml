@@ -1,0 +1,264 @@
+﻿@model BusinessLayer.Entity.Quation_Preparation
+
+@{
+    ViewBag.Title = "Quotation Preparation";
+    Layout = "~/Views/Shared/_MainDashboard.cshtml";
+}
+
+@using (Html.BeginForm("QuotationPreparation", "Quotation", FormMethod.Post, new { @id = "frmQuotationPreparation", enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    Html.RenderPartial("_Alerts");
+
+
+    <div class="pd-20 card-box mb-30">
+        <div class="form-group row">
+            <label class="col-sm-12 col-md-2 col-form-label">Product</label>
+            <div class="col-sm-12 col-md-4">
+                @Html.DropDownListFor(x => x.productCode, Model.Product_List, "Select Product", new { @class = "custom-select2 form-control", @id = "ddlProduct", @data_placeholder = "Select Product", @style = "width: 100%" })
+                <span id="spnErr_ddlProduct" class="field-validation-error"></span>
+            </div>
+
+            <label class="col-sm-12 col-md-2 col-form-label">Type</label>
+            <div class="col-sm-12 col-md-4">
+                @Html.DropDownListFor(x => x.ProductType_Code, new SelectList(Enumerable.Empty<SelectListItem>(), "Value", "Text"), "Select Type", new { @class = "custom-select2 form-control", @id = "ddlType", @data_placeholder = "Select Type", @style = "width: 100%;" })
+                <span id="spnErr_ddlType" class="field-validation-error"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-12 col-md-2 col-form-label">Grade</label>
+            <div class="col-sm-12 col-md-4">
+                @Html.DropDownListFor(x => x.ProductGrade_Code, new SelectList(Enumerable.Empty<SelectListItem>(), "Value", "Text"), "Select Grade", new { @class = "custom-select2 form-control", @id = "ddlGrade", @data_placeholder = "Select Grade", @style = "width: 100%;" })
+                <span id="spnErr_ddlGrade" class="field-validation-error"></span>
+            </div>
+            <label class="col-sm-12 col-md-2 col-form-label">Size</label>
+            <div class="col-sm-12 col-md-4">
+                @Html.DropDownListFor(x => x.ProductSize_Code,new SelectList(Enumerable.Empty<SelectListItem>(), "Value", "Text"), "Select Product", new { @class = "custom-select2 form-control", @id = "ddlSize", @data_placeholder = "Select Size", @style = "width: 100%;" })
+                <span id="spnErr_ddlSize" class="field-validation-error"></span>
+            </div>
+
+            @*<label class="col-sm-12 col-md-2 col-form-label">Party</label>
+            <div class="col-sm-12 col-md-4">
+                @Html.DropDownListFor(x => x.CUST_CODE, Model.CUSTOMER_LIST, "All Customer", new { @class = "custom-select2 form-control", @id = "ddlCustomer", @data_placeholder = "All Customer", @style = "width: 100%" })
+                <span id="spnErr_ddlCustomer" class="field-validation-error"></span>
+            </div>*@
+        </div>
+
+        <div class="form-group row">
+           
+
+            <label class="col-sm-12 col-md-2 col-form-label">Party</label>
+            <div class="col-sm-12 col-md-4">
+                @Html.DropDownListFor(x => x.CUST_CODE, Model.CUSTOMER_LIST, "All Customer", new { @class = "custom-select2 form-control", @id = "ddlCustomer", @data_placeholder = "All Customer", @style = "width: 100%" })
+                <span id="spnErr_ddlCustomer" class="field-validation-error"></span>
+            </div>
+        </div>
+
+
+        <div class="form-group row">
+            <div class="col-md-12" style="padding-top:5px; padding-bottom:15px; padding-right:13px;text-align:center;">
+                <input type="submit" class="btn btn-dark" value="Add New" name="Add" style="width:auto;" id="btnAdd" />
+                <input type="reset" class="btn btn-danger" value="Reset" style="width:auto;" id="btnReset" />
+            </div>
+        </div>
+       
+    </div>
+    
+   
+}
+
+
+<script src="~/assets/js/jquery-2.1.4.min.js"></script>
+<script src="~/Scripts/Custom/customValidation.js"></script>
+
+
+<script>
+
+    $(document).ready(function () {
+
+        @*$("#btnAdd").on("click", function () {
+            var url = '@Url.Action("QuotationPreparationEntry", "Quotation")';
+            window.location.href = url;
+        });*@
+
+        $("#btnReset").on("click", function () {
+
+            var url = '@Url.Action("QuotationPreparation", "Quotation")';
+            window.location.href = url;
+        });
+
+
+   
+       
+
+
+        $("#ddlProduct").change(function (e) {
+           
+            bindGrade();
+            bindType();
+        });
+
+
+
+        function bindGrade() {
+
+            $("#ddlGrade").empty().trigger("chosen:updated");
+
+            if ($("#ddlProduct option:selected").val() == "") {
+                $('#spnErr_ddlProduct').text('Please select Product').show();
+                e.preventDefault();
+                return false;
+            }
+            else {
+                $('#spnErr_ddlProduct').text('').hide();
+            }
+
+           
+            var ProdCode = $("#ddlProduct  option:selected").val() == '' ? '0' : $("#ddlProduct  option:selected").val();
+            var str = '<option value="0">Selected Product</option>';
+            alert(ProdCode);
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetProductGradeList", "Common")',
+                data: { ProductCode: ProdCode },
+                dataType: "json",
+                async: false,
+                success: function (data, textStatus, xhr) {
+
+                    if (data.length > 0) {
+                        for (var i = 0; i < data.length; i++) {
+                            str += '<option value=' + data[i].ProductGrade_Code + '>' + data[i].Grade_Name + '</option>';
+                        }
+                        $("#ddlGrade").empty().append(str);
+                        $("#ddlGrade").trigger("chosen:updated");
+
+                    }
+                    else {
+                        $("#ddlGrade").empty().append(str);
+                        $("#ddlGrade").trigger("chosen:updated");
+                    }
+                },
+                error: function (result) {
+                    alert("Error");
+                }
+            });
+
+        }
+
+        function bindType() {
+
+            $("#ddlType").empty().trigger("chosen:updated");
+
+            if ($("#ddlProduct option:selected").val() == "") {
+                $('#spnErr_ddlProduct').text('Please select Grade').show();
+                e.preventDefault();
+                return false;
+            }
+            else {
+                $('#spnErr_ddlProduct').text('').hide();
+            }
+
+
+            var ProdCode = $("#ddlProduct  option:selected").val() == '' ? '0' : $("#ddlProduct  option:selected").val();
+            var str = '<option value="0">Selected Type</option>';
+            alert(ProdCode);
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetProductTypeList", "Common")',
+                data: { ProductCode: ProdCode },
+                dataType: "json",
+                async: false,
+                success: function (data, textStatus, xhr) {
+
+                    if (data.length > 0) {
+                        for (var i = 0; i < data.length; i++) {
+                            str += '<option value=' + data[i].ProductType_Code + '>' + data[i].ProductType_Desc + '</option>';
+                        }
+                        $("#ddlType").empty().append(str);
+                        $("#ddlType").trigger("chosen:updated");
+
+                    }
+                    else {
+                        $("#ddlType").empty().append(str);
+                        $("#ddlType").trigger("chosen:updated");
+                    }
+                },
+                error: function (result) {
+                    alert("Error");
+                }
+            });
+
+        }
+
+        $("#ddlType").change(function (e) {
+           
+            bindSize();
+        });
+
+        function bindSize() {
+
+            $("#ddlSize").empty().trigger("chosen:updated");
+
+            if ($("#ddlType option:selected").val() == "") {
+                $('#spnErr_ddlType').text('Please select Size').show();
+                e.preventDefault();
+                return false;
+            }
+            else {
+                $('#spnErr_ddlType').text('').hide();
+            }
+
+            var TypeCode = $("#ddlType  option:selected").val() == '' ? '0' : $("#ddlType  option:selected").val();
+            var str = '<option value="0">Selected Size</option>';
+            alert(TypeCode);
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetProdSizeList", "Common")',
+                data: { ProductType_Code: TypeCode },
+                dataType: "json",
+                async: false,
+                success: function (data, textStatus, xhr) {
+                    alert(data.length);
+                    if (data.length > 0) {
+                      
+                        for (var i = 0; i < data.length; i++) {
+                            str += '<option value=' + data[i].ProductSize_Code + '>' + data[i].Size + '</option>';
+                        }
+                        $("#ddlSize").empty().append(str);
+                        $("#ddlSize").trigger("chosen:updated");
+
+                    }
+                    else {
+                        $("#ddlSize").empty().append(str);
+                        $("#ddlSize").trigger("chosen:updated");
+                    }
+                },
+                error: function (result) {
+                    alert("Error");
+                }
+            });
+
+        }
+
+
+        $('#ddlProduct').on("change", function () {
+            var selectedValue = $("#ddlProduct option:selected").text();
+            $("#spnErr_ddlProduct").text(selectedValue);
+            sessionStorage.setItem('selectedValue', selectedValue);
+        });
+
+
+    });
+     
+
+    $(document).ready(function () {
+
+        $('#ddlCustomer').on("change", function () {
+            var selectedValue = $("#ddlCustomer option:selected").text();
+            $("#spnErr_ddlCustomer").text(selectedValue);
+            sessionStorage.setItem('selectedValue', selectedValue);
+        });
+    });
+</script>
+ 
