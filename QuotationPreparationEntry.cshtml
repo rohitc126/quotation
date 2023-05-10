@@ -116,15 +116,17 @@
                                 </td>
 
                                 <td data-title="Unit Price INR/KG">
-                                    @Html.TextBoxFor(x => x.Product_Dtl[i].Unit_price_KG, new { @class = "form-control", @autocomplete = "off", @maxLength = "250", @style = "height:45px;" })
-                                </td>
+                                    @Html.TextBoxFor(x => x.Product_Dtl[i].Unit_price_KG, new { type="text",id="UnitPriceKG", @class = "form-control", @autocomplete = "off", @maxLength = "250", @style = "height:45px;" })
+                                    <span id="spnErr_Unit_price_KG" class="field-validation-error"></span>
+                                 </td>
                                 <td data-title="Unit Price M.T.">
                                     @Html.HiddenFor(x => x.Product_Dtl[i].Unit_price_MT)
-                                    <span id="spnErr_Unit_Price_INR/KG" class="field-validation-error"></span>
+                                    <span id="spnErr_Unit_price_MT" class="field-validation-error"></span>
                                 </td>
                                 <td data-title="Packging">
-                                    @Html.DropDownListFor(x => x.Product_Dtl[i].PACKAGE_ID,Model.Packaging_List, "Select Packging", new { @class = "form-control", @data_placeholder = "Select Unit", @style = "width:100%;" })
-                                </td>
+                                    @Html.DropDownListFor(x => x.Product_Dtl[i].PACKAGE_ID, Model.Packaging_List, "Select Packging", new { @class = "custom-select2 form-control", @data_placeholder = "Select Packging", @style = "width:100%;" })
+                                    <span id="spnErr_Packging" class="field-validation-error"></span>
+                                 </td>
 
                                 <td data-title="Action" style="font-size:20px;padding-top:17px;">
                                     @if (i == 0)
@@ -145,7 +147,7 @@
                 </table>
             </div>
         </div>
-        @*<div class="form-group row">
+        <div class="form-group row">
             <div class="table-responsive">
                 <table class="table table-bordered" style="font-size: 9px; padding: 0px; margin: 0px; " id="tblTermsList">
                     <thead>
@@ -156,6 +158,7 @@
                         </tr>
                         </thead>
                     <tbody id="tblTermsList">
+
                         @for (int i = 0; i < Model.Term_Dtl.Count(); i++)
                         {
 
@@ -164,35 +167,26 @@
                                     <span id="spnSRNo_@i"> @(i + 1) </span>
                                 </td>
                            
-                                <td data-title="Terms & Condition">
+                                <td data-title="Terms & Condition" width="300px">
                                     @Html.TextAreaFor(x => x.Term_Dtl[i].TERM_CONDITION, new { @class = "form-control", @autocomplete = "off", @maxLength = "250", @style = "height:45px;" })
-                                </td>
+                               
+                                    @Html.HiddenFor(x => x.Term_Dtl[i].TC_ID)
+                                 </td>
                                 <td style="float:left;">
                                     @Html.CheckBoxFor(x => x.Term_Dtl[i].isSelected, new { @style = "width:40px;", @class = "vmSTRATEGY input.bigCheckbox" })
                                 </td>
-                                <td data-title="Action" style="font-size:20px;padding-top:17px;">
-                                    @if (i == 0)
-                                    {
-                                        <i class="fa fa-plus" aria-hidden="true" style="cursor: pointer; display: block;" id="iAddRemarks_@i"></i>
-                                        <i class="fa fa-trash-o" aria-hidden="true" style="cursor:pointer;display:none;" id="iDelRemarks_@i"></i>
-                                    }
-                                    else
-                                    {
-                                        <i class="fa fa-plus" aria-hidden="true" style="cursor: pointer; display: none;" id="iAddRemarks_@i"></i>
-                                        <i class="fa fa-close" aria-hidden="true" style="cursor:pointer;display:block;color:red;" id="iDelRemarks_@i"></i>
-                                    }
-                                </td>
+                               
                             </tr>
                         }
                     </tbody>
 </table>
             </div>
-        </div>*@
+        </div>
 
 
         <div class="form-group row">
             <div class="col-md-12" style="padding-top:5px; padding-bottom:15px; padding-right:13px;text-align:center;">
-                <input type="submit" class="btn btn-success" value="Save" name="Save" style="width:auto;" id="btnSubmit" />
+                <input type="submit" class="btn btn-success" value="Submit" name="Save" style="width:auto;" id="btnSubmit" />
                 <input type="reset" class="btn btn-danger" value="Reset" style="width:auto;" id="btnReset" />
 
             </div>
@@ -287,17 +281,51 @@
         $('.vmSTRATEGY').click(function () {
             $('.vmSTRATEGY').not(this).prop('checked', false);
         });
-    });
 
 
-      var selectedValue = sessionStorage.getItem('selectedValue');
-      $('#spnErr_Product_Name').text(selectedValue);
-  
-   
+        var selectedValue1 = localStorage.getItem('selectedValue1');
+        $('#spnErr_Product_Name').text(selectedValue1);
 
-    $(document).ready(function () {
         var selectedValue = sessionStorage.getItem('selectedValue');
         $('#spnErr_Party_Name').text(selectedValue);
+
+    
+        $("#UnitPriceKG").on("input", function () { // Bind the input event to the input textbox
+                const inputValue = $(this).val();
+                if (!isNaN(inputValue)) { // Check if input value is a number
+                    const metricTonValue = (inputValue / 1000).toFixed(2); // Convert value to Metric ton and round to 2 decimal places
+                    $("#spnErr_Unit_price_MT").text(metricTonValue + " MT"); // Display the converted value in the table span tag
+                } else {
+                    $("#spnErr_Unit_price_MT").text(""); // Clear the table span tag if input value is not a number
+                }
+            });
+
+        });
+        </script>
+  <script>
+    $(document).ready(function () {
+            $('#Product_Dtl_0__Unit_price_KG').select2();
+            $('#Product_Dtl_0__PACKAGE_ID').select2();
+            $('#Product_Dtl_0__productDesc').select2();
+
+         
+        $('#tblRemarksList').click(function () {
+            alert();
+            var SrNo = $('#spnSLNo_').text();
+            var productName = $('#spnErr_Product_Name').text('Meta Geo Silica');
+            var productDesc = $('#productDesc').val('Meta Geo Silica');
+            var Unitprice = $('#UnitPriceKG').val();
+            var PACKAGE_ID = $('#spnErr_Packging').text(); // Get the age value from an input field
+            
+            var newRow = '<tr><td>' + SrNo + '</td><td>' +' Meta Geo Silica' + '</td><td>' + 'Meta Geo Silica' + '<tr><td>' + Unitprice + '</td><td>' + PACKAGE_ID + '<button class="remove-row">Remove</button></td></tr>';
+            $('#tbodyRemarksList').append(newRow); // Append the new row to the table body
+        });
+
+        // Remove row
+        $(document).on('click', '#tbodyRemarksList', function () {
+            $(this).closest('tr').remove(); // Remove the row that contains the clicked button
+        });
+       
     });
 </script>
 
